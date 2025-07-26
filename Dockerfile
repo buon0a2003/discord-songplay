@@ -1,5 +1,5 @@
-# Use Node.js 18 with Alpine Linux (lightweight)
-FROM node:18-alpine
+# Use the latest Node.js Alpine image
+FROM node:alpine
 
 # Install FFmpeg and other dependencies
 RUN apk add --no-cache \
@@ -8,7 +8,7 @@ RUN apk add --no-cache \
     make \
     g++
 
-# Set working directory
+# Set working directory 
 WORKDIR /app
 
 # Copy package files
