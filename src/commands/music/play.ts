@@ -12,12 +12,12 @@ export const data = new SlashCommandBuilder()
 export async function execute(client: Client, interaction: CommandInteraction) {
   const query = (interaction as any).options?.getString("songurl");
   if (!query) {
-    await interaction.reply({ content: "❌ Bạn cần nhập link hoặc tên bài hát!" });
+    await interaction.reply({ content: "❌ Cần nhập link hoặc tên bài hát!" });
     return;
   }
   const voiceChannel = (interaction.member as GuildMember)?.voice?.channel;
   if (!voiceChannel) {
-    await interaction.reply({ content: "❌ Bạn cần tham gia kênh thoại trước!" });
+    await interaction.reply({ content: "❌ Vào voice channel trước đi!" });
     return;
   }
   await interaction.reply({ content: `🔎 Đang tìm kiếm: **${query}**...` });

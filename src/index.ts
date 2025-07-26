@@ -53,7 +53,6 @@ client.distube
     queue.textChannel?.send('✅ Đã phát xong tất cả bài hát trong hàng chờ!');
   });
 
-
 (async () => {
   try {
     eventHandler(client);

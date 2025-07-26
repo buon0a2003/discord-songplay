@@ -12,7 +12,7 @@ export async function execute(client: Client, interaction: CommandInteraction) {
   }
   const voiceChannel = member.voice?.channel;
   if (!voiceChannel) {
-    await interaction.reply({ content: "❌ Bạn cần tham gia kênh thoại trước!" });
+    await interaction.reply({ content: "❌ Vào voice channel trước đi!" });
     return;
   }
   try {
