@@ -1,19 +1,14 @@
 services:
   - type: web
     name: discord-songplay-bot
-    runtime: node
-    plan: starter
-    buildCommand: npm ci && npm run build
-    startCommand: npm start
+    env: docker
+    dockerfilePath: ./Dockerfile
     envVars:
-      - key: NODE_ENV
-        value: production
       - key: TOKEN
         sync: false
-    # Install FFmpeg during build
-    buildFilter:
-      paths:
-        - package.json
-        - package-lock.json
-        - src/**
-        - tsconfig.json
+    # For health checks if needed
+    healthCheckPath: /
+    # Build command
+    buildCommand: npm run build
+    # Start command
+    startCommand: npm start
