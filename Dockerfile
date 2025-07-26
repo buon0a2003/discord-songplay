@@ -30,6 +30,3 @@ EXPOSE 3000
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S discordbot -u 1001
 USER discordbot
-
-# Start the bot
-CMD ["npm", "start"] 
