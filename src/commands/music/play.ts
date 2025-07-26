@@ -15,20 +15,32 @@ export async function execute(client: Client, interaction: CommandInteraction) {
     await interaction.reply({ content: "❌ Cần nhập link hoặc tên bài hát!" });
     return;
   }
+  
   const voiceChannel = (interaction.member as GuildMember)?.voice?.channel;
   if (!voiceChannel) {
     await interaction.reply({ content: "❌ Vào voice channel trước đi!" });
     return;
   }
-  await interaction.reply({ content: `🔎 Đang tìm kiếm: **${query}**...` });
 
   const member = interaction.member;
   if (!member || !(member instanceof GuildMember)) {
-    await interaction.followUp({ content: "❌ Không thể xác định thành viên!" });
+    await interaction.reply({ content: "❌ Không thể xác định thành viên!" });
     return;
   }
-  await client.distube.play(voiceChannel, query, {
-    textChannel: interaction.channel,
-    member: member,
-  });
+
+  // Defer the reply to give us more time
+  await interaction.deferReply();
+
+  try {
+    await client.distube.play(voiceChannel, query, {
+      textChannel: interaction.channel,
+      member: member,
+    });
+    
+    // Edit the deferred reply with success message
+    await interaction.editReply({ content: `🔎 Đang tìm kiếm: **${query}**...` });
+  } catch (error) {
+    console.error('DisTube play error:', error);
+    await interaction.editReply({ content: "❌ Có lỗi xảy ra khi phát nhạc!" });
+  }
 } 

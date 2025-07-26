@@ -1,4 +1,4 @@
-import type { Client, Interaction } from "discord.js";
+import { Client, Interaction, MessageFlags } from "discord.js";
 
 // Execute slash commands
 export default async function handleInteraction(
@@ -18,16 +18,20 @@ export default async function handleInteraction(
     await command.execute(client, interaction);
   } catch (err) {
     console.error(`[${interaction.commandName}] execution error:`, err);
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({
-        content: "❌ There was an error running this command!",
-        ephemeral: true,
-      });
-    } else {
-      await interaction.reply({
-        content: "❌ There was an error running this command!",
-        ephemeral: true,
-      });
+    
+    try {
+      if (interaction.deferred) {
+        await interaction.editReply({
+          content: "❌ There was an error running this command!",
+        });
+      } else if (!interaction.replied) {
+        await interaction.reply({
+          content: "❌ There was an error running this command!",
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+    } catch (responseError) {
+      console.error(`Failed to send error response:`, responseError);
     }
   }
 }
