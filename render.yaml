@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: discord-songplay-bot
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TOKEN
+        sync: false
+    # Install FFmpeg during build
+    buildFilter:
+      paths:
+        - package.json
+        - package-lock.json
+        - src/**
+        - tsconfig.json
