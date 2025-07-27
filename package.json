@@ -5,10 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon",
-    "start": "node ./dist/index.js",
-    "start:cloud": "chmod +x start.sh && ./start.sh",
-    "start:windows": "start.bat"
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "",
