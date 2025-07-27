@@ -17,7 +17,7 @@ COPY package*.json ./
 # Install dependencies using npm
 RUN npm install
 
-# Copy source code
+# Copy source code (excluding cookies.json which should be in .dockerignore for security)
 COPY . .
 
 # Build TypeScript

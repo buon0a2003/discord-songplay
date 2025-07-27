@@ -26,23 +26,61 @@ const client: Client = new Client({
   ],
 });
 
-const cookies = JSON.parse(fs.readFileSync("cookies.json", "utf8"));
-const cookiesArray = cookies.cookies.map((cookie: any) => ({
-  name: cookie.name,
-  value: cookie.value,
-  domain: cookie.domain,
-  path: cookie.path,
-  sameSite: cookie.sameSite,
-  secure: cookie.secure,
-  session: cookie.session,
-}));
+// Handle cookies for cloud deployment
+let cookiesArray: any[] = [];
 
-client.distube = new DisTube(client, {
+try {
+  // Try to get cookies from environment variable first (for cloud deployment)
+  if (process.env.YOUTUBE_COOKIES) {
+    console.log('🍪 Loading cookies from environment variable...');
+    const cookiesData = JSON.parse(process.env.YOUTUBE_COOKIES);
+    cookiesArray = cookiesData.cookies.map((cookie: any) => ({
+      name: cookie.name,
+      value: cookie.value,
+      domain: cookie.domain,
+      path: cookie.path,
+      sameSite: cookie.sameSite,
+      secure: cookie.secure,
+      session: cookie.session,
+    }));
+  } 
+  // Fallback to local cookies.json file (for development)
+  else if (fs.existsSync("cookies.json")) {
+    console.log('🍪 Loading cookies from cookies.json file...');
+    const cookies = JSON.parse(fs.readFileSync("cookies.json", "utf8"));
+    cookiesArray = cookies.cookies.map((cookie: any) => ({
+      name: cookie.name,
+      value: cookie.value,
+      domain: cookie.domain,
+      path: cookie.path,
+      sameSite: cookie.sameSite,
+      secure: cookie.secure,
+      session: cookie.session,
+    }));
+  } else {
+    console.warn('⚠️  No cookies found. Bot will work with limited YouTube functionality.');
+  }
+} catch (error) {
+  console.error('❌ Error loading cookies:', error);
+  console.warn('⚠️  Continuing without cookies. Some YouTube features may be limited.');
+}
+
+// Initialize DisTube with or without cookies
+const distubeOptions: any = {
   emitNewSongOnly: true,
-  plugins: [
-    new YouTubePlugin({ cookies: cookiesArray }),
-  ],
-});
+  plugins: [],
+};
+
+// Only add YouTube plugin with cookies if cookies are available
+if (cookiesArray.length > 0) {
+  distubeOptions.plugins.push(new YouTubePlugin({ cookies: cookiesArray }));
+  console.log('✅ DisTube initialized with YouTube cookies');
+} else {
+  distubeOptions.plugins.push(new YouTubePlugin());
+  console.log('✅ DisTube initialized without cookies (limited functionality)');
+}
+
+client.distube = new DisTube(client, distubeOptions);
 
 // DisTube event listeners with Vietnamese responses  
 client.distube

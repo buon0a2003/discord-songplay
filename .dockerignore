@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.local
+.env.example
+*.log
+.git
+.gitignore
+README.md
+cookies.json
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp 
