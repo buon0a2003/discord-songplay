@@ -4,6 +4,8 @@ import eventHandler from './handlers/eventHandler';
 import { DisTube } from "distube";
 import { YouTubePlugin } from "@distube/youtube";
 import { joinVoiceChannel } from "@discordjs/voice";
+import { json } from 'stream/consumers';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -24,14 +26,25 @@ const client: Client = new Client({
   ],
 });
 
+const cookies = JSON.parse(fs.readFileSync("cookies.json", "utf8"));
+const cookiesArray = cookies.cookies.map((cookie: any) => ({
+  name: cookie.name,
+  value: cookie.value,
+  domain: cookie.domain,
+  path: cookie.path,
+  sameSite: cookie.sameSite,
+  secure: cookie.secure,
+  session: cookie.session,
+}));
+
 client.distube = new DisTube(client, {
   emitNewSongOnly: true,
   plugins: [
-    new YouTubePlugin(),
+    new YouTubePlugin({ cookies: cookiesArray }),
   ],
 });
 
-// DisTube event listeners with Vietnamese responses
+// DisTube event listeners with Vietnamese responses  
 client.distube
   .on('playSong' as any, (queue, song) => {
     queue.textChannel?.send(`▶️ Đang phát: **${song.name}** (${song.formattedDuration})\nYêu cầu bởi: ${song.user}`);

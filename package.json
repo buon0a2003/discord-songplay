@@ -25,5 +25,10 @@
     "@types/node": "^22.14.1",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@discordjs/opus"
+    ]
   }
 }

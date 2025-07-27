@@ -4,3 +4,4 @@ currentQuestion.json
 src/daily-programming/questions/
 dist/
 runtime/
+cookies.json
