@@ -74,6 +74,9 @@ if (fs.existsSync("cookies.json")) {
 // console.log(cookies.cookies);
 
 client.distube = new DisTube(client, {
+  ffmpeg: {
+    path: ffmpegPath,
+  },
   plugins: [new YouTubePlugin({ 
     cookies: cookies?.cookies || undefined
   })]
