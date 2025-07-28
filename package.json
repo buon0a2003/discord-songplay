@@ -1,8 +1,8 @@
 {
-  "name": "discord-bot-template",
-  "version": "0.0.0",
-  "description": "",
-  "main": "src/index.js",
+  "name": "discord-songplay-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot that plays songs from YouTube",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "nodemon",
@@ -17,7 +17,8 @@
     "@distube/youtube": "^1.0.4",
     "discord.js": "^14.18.0",
     "distube": "^5.0.7",
-    "dotenv": "^16.5.0"
+    "dotenv": "^16.5.0",
+    "ffmpeg-static": "^5.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.1",
@@ -26,7 +27,8 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "@discordjs/opus"
+      "@discordjs/opus",
+      "ffmpeg-static"
     ]
   }
 }

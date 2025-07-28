@@ -1,11 +1,12 @@
 import dotenv from 'dotenv';
 import { Client, IntentsBitField, Partials } from 'discord.js';
 import eventHandler from './handlers/eventHandler';
-import { DisTube } from "distube";
+import { DisTube, DisTubeOptions } from "distube";
 import { YouTubePlugin } from "@distube/youtube";
 import { joinVoiceChannel } from "@discordjs/voice";
 import { json } from 'stream/consumers';
 import fs from 'fs';
+import ffmpegPath from 'ffmpeg-static';
 
 dotenv.config();
 
@@ -66,7 +67,10 @@ try {
 }
 
 // Initialize DisTube with or without cookies
-const distubeOptions: any = {
+const distubeOptions: DisTubeOptions = {
+  ffmpeg: {
+    path: ffmpegPath,
+  },
   emitNewSongOnly: true,
   plugins: [],
 };
