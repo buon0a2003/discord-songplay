@@ -18,10 +18,10 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(client: Client, interaction: CommandInteraction) {
-  const query = (interaction as any).options?.getString("songurl");
+  const song = (interaction as any).options?.getString("songurl");
   const skip = (interaction as any).options?.getBoolean("skip", false) ?? false;
-  const position = (interaction as any).options?.getInteger("position", false) ?? undefined;
-  if (!query) {
+  const position = (interaction as any).options?.getInteger("position", 0) ?? 0;
+  if (!song) {
     await interaction.reply({ content: "❌ Cần nhập link hoặc tên bài hát!" });
     return;
   }
@@ -37,15 +37,14 @@ export async function execute(client: Client, interaction: CommandInteraction) {
     await interaction.reply({ content: "❌ Không thể xác định thành viên!" });
     return;
   }
-
   await interaction.deferReply();
 
   try {
-    await client.distube.play(voiceChannel, query, {
-      textChannel: interaction.channel,
-      member: member,
+    await client.distube.play(voiceChannel, song, {
       skip: skip,
       position: position,
+      textChannel: interaction.channel,
+      member: member,
       metadata: {
         interaction: interaction,
       },

@@ -27,85 +27,95 @@ const client: Client = new Client({
   ],
 });
 
-// Handle cookies for cloud deployment
-let cookiesArray: any[] = [];
+let cookies: any;
 
-try {
-  // Try to get cookies from environment variable first (for cloud deployment)
-  if (process.env.YOUTUBE_COOKIES) {
-    console.log('🍪 Loading cookies from environment variable...');
-    const cookiesData = JSON.parse(process.env.YOUTUBE_COOKIES);
-    cookiesArray = cookiesData.cookies.map((cookie: any) => ({
-      name: cookie.name,
-      value: cookie.value,
-      domain: cookie.domain,
-      path: cookie.path,
-      sameSite: cookie.sameSite,
-      secure: cookie.secure,
-      session: cookie.session,
-    }));
-  } 
-  // Fallback to local cookies.json file (for development)
-  else if (fs.existsSync("cookies.json")) {
-    console.log('🍪 Loading cookies from cookies.json file...');
-    const cookies = JSON.parse(fs.readFileSync("cookies.json", "utf8"));
-    cookiesArray = cookies.cookies.map((cookie: any) => ({
-      name: cookie.name,
-      value: cookie.value,
-      domain: cookie.domain,
-      path: cookie.path,
-      sameSite: cookie.sameSite,
-      secure: cookie.secure,
-      session: cookie.session,
-    }));
-  } else {
-    console.warn('⚠️  No cookies found. Bot will work with limited YouTube functionality.');
+if (fs.existsSync("cookies.json")) {
+  try {
+    cookies = JSON.parse(fs.readFileSync("cookies.json", "utf8"));
+    console.log("✅ cookies loaded from cookies.json");
+    
+    // Validate cookie structure
+    if (cookies && cookies.cookies && Array.isArray(cookies.cookies)) {
+      console.log(`📊 Cookie validation: Found ${cookies.cookies.length} cookies`);
+      
+      // Check for essential YouTube cookies
+      const essentialCookies = ['YSC', 'VISITOR_INFO1_LIVE', 'CONSENT'];
+      const foundEssential = cookies.cookies.filter(cookie => 
+        essentialCookies.includes(cookie.name)
+      );
+      
+      console.log(`🔑 Essential cookies found: ${foundEssential.map(c => c.name).join(', ')}`);
+      
+      // Check for authentication-related cookies
+      const authCookies = cookies.cookies.filter(cookie => 
+        cookie.name.includes('LOGIN') || 
+        cookie.name.includes('SAPISID') || 
+        cookie.name.includes('SSID')
+      );
+      
+      if (authCookies.length > 0) {
+        console.log(`🔐 Authentication cookies detected: ${authCookies.length} found`);
+      } else {
+        console.log("⚠️  No authentication cookies found - bot may have limited access");
+      }
+      
+    } else {
+      console.error("❌ Invalid cookie structure in cookies.json");
+      cookies = null;
+    }
+  } catch (error) {
+    console.error("❌ Error loading cookies:", error);
+    cookies = null;
   }
-} catch (error) {
-  console.error('❌ Error loading cookies:', error);
-  console.warn('⚠️  Continuing without cookies. Some YouTube features may be limited.');
-}
-
-// Initialize DisTube with or without cookies
-const distubeOptions: DisTubeOptions = {
-  ffmpeg: {
-    path: ffmpegPath,
-  },
-  emitNewSongOnly: true,
-  plugins: [],
-};
-
-// Only add YouTube plugin with cookies if cookies are available
-if (cookiesArray.length > 0) {
-  distubeOptions.plugins.push(new YouTubePlugin({ cookies: cookiesArray }));
-  console.log('✅ DisTube initialized with YouTube cookies');
 } else {
-  distubeOptions.plugins.push(new YouTubePlugin());
-  console.log('✅ DisTube initialized without cookies (limited functionality)');
+  console.log("⚠️  cookies.json not found - using default configuration");
 }
 
-client.distube = new DisTube(client, distubeOptions);
+// console.log(cookies.cookies);
+
+client.distube = new DisTube(client, {
+  plugins: [new YouTubePlugin({ 
+    cookies: cookies?.cookies || undefined
+  })]
+});
 
 // DisTube event listeners with Vietnamese responses  
 client.distube
   .on('playSong' as any, (queue, song) => {
+    console.log(`🎵 Playing: ${song.name} | Duration: ${song.formattedDuration} | Source: ${song.source}`);
     queue.textChannel?.send(`▶️ Đang phát: **${song.name}** (${song.formattedDuration})\nYêu cầu bởi: ${song.user}`);
   })
   .on('addSong' as any, (queue, song) => {
+    console.log(`➕ Added to queue: ${song.name} | Source: ${song.source}`);
     queue.textChannel?.send(`✅ Đã thêm bài hát **${song.name}** vào hàng chờ!`);
   })
   .on('addList' as any, (queue, playlist) => {
+    console.log(`📃 Added playlist: ${playlist.name} | Songs: ${playlist.songs.length}`);
     queue.textChannel?.send(`📃 Đã thêm playlist **${playlist.name}** (${playlist.songs.length} bài) vào hàng chờ!`);
   })
   .on('error' as any, (e, queue, song)  => {
+    console.error('🚨 DisTube error details:', {
+      error: e.message,
+      song: song?.name || 'Unknown',
+      source: song?.source || 'Unknown',
+      stack: e.stack
+    });
     queue.textChannel?.send(`⛔ Lỗi rồi người ơi!`)
-    console.error('DisTube error:', e);
   })
   .on('empty' as any, queue => {
+    console.log('📭 Voice channel empty, leaving...');
     queue.textChannel?.send('Kênh thoại trống, bot sẽ rời đi!');
   })
   .on('finish' as any, queue => {
+    console.log('✅ Queue finished playing all songs');
     queue.textChannel?.send('✅ Đã phát xong tất cả bài hát trong hàng chờ!');
+  })
+  .on('initQueue' as any, queue => {
+    console.log(`🎯 Queue initialized for guild: ${queue.id}`);
+  })
+  .on('noRelated' as any, queue => {
+    console.log('🔍 No related songs found - this might indicate cookie/access issues');
+    queue.textChannel?.send('❌ Không tìm thấy bài hát liên quan!');
   });
 
 (async () => {
