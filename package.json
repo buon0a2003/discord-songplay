@@ -28,6 +28,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "@discordjs/opus",
+      "@distube/yt-dlp",
       "ffmpeg-static"
     ]
   }
